@@ -1,24 +1,20 @@
-const router = require('express').Router()
-const {User} = require('./db')
-module.exports = router
+const router = require("express").Router();
+const { User } = require("./db");
+module.exports = router;
 
 const userNotFound = next => {
-  const err = new Error('Not found')
-  err.status = 404
-  next(err)
-}
+  const err = new Error("Not found");
+  err.status = 404;
+  next(err);
+};
 
-router.get('/me', (req, res, next) => {
-  if (!req.session.userId) {
-    userNotFound(next)
-  } else {
-    User.findById(req.session.userId)
-      .then(user => user ? res.json(user) : userNotFound(next))
-      .catch(next)
-  }
-})
+router.use("/google", require("./oauth"));
 
-router.put('/login', (req, res, next) => {
+router.get("/me", (req, res, next) => {
+  res.json(req.user || {});
+});
+
+router.put("/login", (req, res, next) => {
   User.findOne({
     where: {
       email: req.body.email,
@@ -27,18 +23,18 @@ router.put('/login', (req, res, next) => {
   })
     .then(user => {
       if (user) {
-        req.session.userId = user.id
-        res.json(user)
+        req.login(user, err => (err ? next(err) : res.json(user)));
       } else {
-        const err = new Error('Incorrect email or password!')
-        err.status = 401
-        next(err)
+        const err = new Error("Incorrect email or password!");
+        err.status = 401;
+        next(err);
       }
     })
-    .catch(next)
-})
+    .catch(next);
+});
 
-router.delete('/logout', (req, res, next) => {
-  req.session.destroy()
-  res.status(204).end()
-})
+router.delete("/logout", (req, res, next) => {
+  req.logOut();
+  req.session.destroy();
+  res.status(204).end();
+});

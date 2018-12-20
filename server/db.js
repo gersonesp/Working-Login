@@ -1,7 +1,7 @@
-const Sequelize = require('sequelize')
-const db = new Sequelize('postgres://localhost/loggin', {logging: false})
+const Sequelize = require("sequelize");
+const db = new Sequelize("postgres://localhost/loggin", { logging: false });
 
-const User = db.define('users', {
+const User = db.define("users", {
   email: {
     type: Sequelize.STRING,
     validate: {
@@ -13,10 +13,11 @@ const User = db.define('users', {
   },
   imageUrl: {
     type: Sequelize.STRING
-  }
-})
+  },
+  googleId: Sequelize.STRING
+});
 
 module.exports = {
   db,
   User
-}
+};
